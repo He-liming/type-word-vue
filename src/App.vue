@@ -33,7 +33,7 @@
       <el-card class="main-card">
         <el-container>
           <el-header class="header">
-            <h1>TEST YOUR WORDS</h1>
+            <h1>{{ currentWordBookTitle }}</h1>
           </el-header>
           <el-main class="main-content">
             <div class="mean-box">
@@ -60,10 +60,12 @@
     <!-- el-dialog组件，用于显示弹出的对话框 -->
     <el-dialog title="新概念词库" v-model="dialogVisible">
       <ul class="dialog-list">
-        <li @click="handleListItemClick('nce1')">新概念第1册</li>
-        <li @click="handleListItemClick('nce2')">新概念第2册</li>
-        <li @click="handleListItemClick('nce3')">新概念第3册</li>
-        <li @click="handleListItemClick('nce4')">新概念第4册</li>
+        <li @click="handleListItemClick('nce1')">新概念第1册（新版）</li>
+        <li @click="handleListItemClick('nce2')">新概念第2册（新版）</li>
+        <li @click="handleListItemClick('nce3')">新概念第3册（新版）</li>
+        <li @click="handleListItemClick('nce4')">新概念第4册（新版）</li>
+        <li @click="handleListItemClick('IELTS1')">雅思词汇真经（新版）</li>
+        <li @click="handleListItemClick('IELTS2')">100个句子记完7000个雅思单词</li>
       </ul>
     </el-dialog>
   </div>
@@ -93,6 +95,7 @@ const sortedWordList = ref([]);
 // 新增响应式数据，用于控制对话框显示隐藏
 const dialogVisible = ref(false);
 const currentWordBook = ref('words.txt');
+const currentWordBookTitle = ref('新概念第1册');
 
 const handleFileUpload = () => {
   fileInput.value.click();
@@ -303,16 +306,26 @@ const handleShowModeChange = () => {
 const handleListItemClick = (option) => {
   // 根据点击的选项设置对应的文件名到currentWordBook
   if (option === 'nce1') {
-    currentWordBook.value = 'nce1-words';
+    currentWordBook.value = 'nce1';
+    currentWordBookTitle.value = '新概念第1册';
   } else if (option === 'nce2') {
-    currentWordBook.value = 'nce2_words';
+    currentWordBook.value = 'nce2';
+    currentWordBookTitle.value = '新概念第2册';
   } else if (option === 'nce3') {
-    currentWordBook.value = 'nce3_words';
+    currentWordBook.value = 'nce3';
+    currentWordBookTitle.value = '新概念第3册';
   } else if (option === 'nce4') {
-    currentWordBook.value = 'nce4_words';
+    currentWordBook.value = 'nce4';
+    currentWordBookTitle.value = '新概念第4册';
+  } else if (option === 'IELTS1') {
+    currentWordBook.value = 'IELTS1';
+    currentWordBookTitle.value = '雅思词汇真经';
+  } else if (option === 'IELTS2') {
+    currentWordBook.value = 'IELTS100';
+    currentWordBookTitle.value = '100个句子记完7000个雅思单词';
   }
   // 重新读取对应单词书文件的数据（这里需要调整fetch的路径和文件名拼接等，以下是示例思路）
-  const filePath = `/${currentWordBook.value}.txt`;
+  const filePath = `/type-words/${currentWordBook.value}.txt`;
   fetch(filePath)
     .then((response) => response.text())
     .then((content) => {
@@ -320,17 +333,20 @@ const handleListItemClick = (option) => {
       const dictionary = [];
       lines.forEach((line) => {
         const [word, meaning] = line.split('|');
+        console.log({ word: word.trim(), meaning: meaning.trim() })
         dictionary.push({ word: word.trim(), meaning: meaning.trim() });
       });
       wordDictionary.value = dictionary;
       totalWords.value = dictionary.length;
+      inputValue.value = '';
       sortWordList();
       showRandomWord();
       isFileUploaded.value = true;
       handleShowModeChange()
 
     })
-    .catch(() => {
+    .catch((e) => {
+      console.log(e);
       ElMessage({
         message: '单词书读取失败！',
         grouping: true,
@@ -349,7 +365,7 @@ const showDialog = () => {
 let keydownListener;
 onMounted(() => {
   fileInput.value.addEventListener('change', handleFileSelected);
-  const defaultFile = '/nce1-words.txt'; // 假设文件名为words.txt，路径相对于根路径（public目录下）
+  const defaultFile = '/type-words/nce1.txt'; // 假设文件名为words.txt，路径相对于根路径（public目录下）
   fetch(defaultFile)
     .then((response) => response.text())
     .then((content) => {
@@ -466,6 +482,7 @@ onBeforeUnmount(() => {
   color: #4CAF50;
   font-weight: bold;
   text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  letter-spacing: 10px;
 }
 
 .main-content {
@@ -488,6 +505,7 @@ onBeforeUnmount(() => {
   font-size: 50px;
   font-family: "KaiTi", "行楷", serif;
   padding: 20px;
+  color: #333333;
 }
 
 .english-input {
